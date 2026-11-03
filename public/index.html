@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp & Telegram Multi-Admin Control Suite</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #25D366;
+      --primary-dark: #128C7E;
+      --tg-blue: #229ED9;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    /* Header */
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+    .logo-area { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; }
+    h1 { font-size: 22px; font-weight: 700; }
+    .subtitle { font-size: 13px; color: var(--text-muted); }
+    .header-badges { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .badge-info { background: rgba(34, 158, 217, 0.2); color: var(--tg-blue); border: 1px solid var(--tg-blue); }
+    .badge-gold { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+
+    /* Nav Tabs */
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; overflow-x: auto; }
+    .tab-btn { background: none; border: none; color: var(--text-muted); padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .tab-btn:hover { background: var(--card-border); color: var(--text); }
+    .tab-btn.active { background: var(--primary); color: #000; }
+
+    /* Cards & Grids */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.2s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .card-title { font-size: 17px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+
+    /* Buttons & Inputs */
+    .btn { padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.2s; text-decoration: none; }
+    .btn:hover { opacity: 0.9; }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-secondary { background: var(--card-border); color: var(--text); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    input, textarea, select { width: 100%; background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; margin-bottom: 12px; outline: none; }
+    input:focus, textarea:focus { border-color: var(--primary); }
+    label { font-size: 13px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px; }
+
+    /* Auto-Reply Step Cards */
+    .step-card { border: 2px dashed var(--card-border); border-radius: 12px; padding: 16px; background: rgba(15, 23, 42, 0.4); position: relative; }
+    .step-card.active { border-style: solid; border-color: var(--primary); background: rgba(37, 211, 102, 0.05); }
+    .step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .step-num { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .step-status { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 10px; }
+    .status-set { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .status-unset { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
+    .step-preview { background: #0f172a; border-radius: 6px; padding: 10px; font-size: 13px; min-height: 55px; margin-bottom: 12px; word-break: break-all; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
+    th { color: var(--text-muted); font-weight: 600; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+    .pairing-box { background: #0f172a; border: 2px dashed var(--primary); border-radius: 12px; padding: 16px; text-align: center; margin: 15px 0; }
+    .pairing-code { font-size: 32px; font-weight: 800; letter-spacing: 4px; color: var(--primary); font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fa-brands fa-whatsapp"></i></div>
+        <div>
+          <h1>WhatsApp & Telegram Multi-Admin Suite</h1>
+          <div class="subtitle">Independent Accounts, Isolated Leads, and Step 1-4 Auto-Reply per Admin</div>
+        </div>
+      </div>
+      <div class="header-badges">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Active Admin:</span>
+          <select id="adminSelect" style="width: auto; margin: 0; padding: 6px 10px;" onchange="onAdminChange(this.value)">
+            <option value="8903350022">Super Admin (8903350022)</option>
+          </select>
+        </div>
+        <div class="badge badge-info" id="accountsBadge"><i class="fa-solid fa-mobile-screen"></i> <span id="connectedCountSpan">0</span> Online</div>
+      </div>
+    </header>
+
+    <!-- Nav Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('accounts')"><i class="fa-solid fa-mobile-screen"></i> WhatsApp Accounts</button>
+      <button class="tab-btn" onclick="switchTab('autoreply')"><i class="fa-solid fa-robot"></i> Auto-Reply (Steps 1-4)</button>
+      <button class="tab-btn" onclick="switchTab('broadcast')"><i class="fa-solid fa-bullhorn"></i> Broadcast Center</button>
+      <button class="tab-btn" onclick="switchTab('contacts')"><i class="fa-solid fa-address-book"></i> Contacts Database</button>
+      <button class="tab-btn" onclick="switchTab('admins')"><i class="fa-solid fa-users-gear"></i> Admin Management</button>
+    </div>
+
+    <!-- 1. ACCOUNTS TAB -->
+    <div id="tab-accounts" class="tab-content active">
+      <div class="card">
+        <div class="card-title">
+          <span>My WhatsApp Accounts</span>
+          <button class="btn btn-primary btn-sm" onclick="openPairModal()"><i class="fa-solid fa-plus"></i> Link Account (Pairing Code)</button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+          Yeh WhatsApp accounts aapke active admin profile ke sath linked hain. Kisi doosre admin ko yeh nahi dikhenge!
+        </p>
+        <div id="accountsListContainer">
+          <div style="text-align: center; padding: 25px; color: var(--text-muted);">Loading accounts...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. AUTO-REPLY TAB (STEP 1, 2, 3, 4) -->
+    <div id="tab-autoreply" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>🤖 My Auto-Reply Sequential Slots (Steps 1 to 4)</span>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="btn btn-secondary btn-sm" id="toggleAutoReplyBtn" onclick="toggleAutoReply()"><i class="fa-solid fa-power-off"></i> Toggle Status</button>
+          </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+          💡 <b>How it works:</b> Jab bhi koi user aapke WhatsApp par message karega, bot <b>Step 1, Step 2, Step 3, Step 4</b> ko line-by-line send karega. <b>Agar koi step set nahi hai to wo skip ho jayega</b> aur sirf set kiye hue steps hi bheje jayenge! Har admin ka auto-reply alag rehta hai.
+        </p>
+
+        <div class="grid-4">
+          <!-- Step 1 -->
+          <div class="step-card" id="slotCard-1">
+            <div class="step-header">
+              <div class="step-num">1️⃣ Step 1</div>
+              <span class="step-status status-unset" id="slotBadge-1">Not Set</span>
+            </div>
+            <div class="step-preview" id="slotPreview-1"><i>Empty (Will be skipped)</i></div>
+            <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 6px;" onclick="openEditSlotModal(1)"><i class="fa-solid fa-pencil"></i> Set / Edit Step 1</button>
+            <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="clearSlot(1)"><i class="fa-solid fa-trash"></i> Clear Step 1</button>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step-card" id="slotCard-2">
+            <div class="step-header">
+              <div class="step-num">2️⃣ Step 2</div>
+              <span class="step-status status-unset" id="slotBadge-2">Not Set</span>
+            </div>
+            <div class="step-preview" id="slotPreview-2"><i>Empty (Will be skipped)</i></div>
+            <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 6px;" onclick="openEditSlotModal(2)"><i class="fa-solid fa-pencil"></i> Set / Edit Step 2</button>
+            <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="clearSlot(2)"><i class="fa-solid fa-trash"></i> Clear Step 2</button>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step-card" id="slotCard-3">
+            <div class="step-header">
+              <div class="step-num">3️⃣ Step 3</div>
+              <span class="step-status status-unset" id="slotBadge-3">Not Set</span>
+            </div>
+            <div class="step-preview" id="slotPreview-3"><i>Empty (Will be skipped)</i></div>
+            <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 6px;" onclick="openEditSlotModal(3)"><i class="fa-solid fa-pencil"></i> Set / Edit Step 3</button>
+            <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="clearSlot(3)"><i class="fa-solid fa-trash"></i> Clear Step 3</button>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step-card" id="slotCard-4">
+            <div class="step-header">
+              <div class="step-num">4️⃣ Step 4</div>
+              <span class="step-status status-unset" id="slotBadge-4">Not Set</span>
+            </div>
+            <div class="step-preview" id="slotPreview-4"><i>Empty (Will be skipped)</i></div>
+            <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 6px;" onclick="openEditSlotModal(4)"><i class="fa-solid fa-pencil"></i> Set / Edit Step 4</button>
+            <button class="btn btn-danger btn-sm" style="width: 100%;" onclick="clearSlot(4)"><i class="fa-solid fa-trash"></i> Clear Step 4</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+          <div>
+            <label>Delay Between Sequential Steps:</label>
+            <select id="autoReplyDelaySelect" style="width: 160px; margin: 0;" onchange="updateAutoReplySettings()">
+              <option value="1500">1.5 Seconds</option>
+              <option value="2500">2.5 Seconds</option>
+              <option value="4000">4.0 Seconds</option>
+            </select>
+          </div>
+          <div>
+            <label>Trigger Mode:</label>
+            <select id="autoReplyModeSelect" style="width: 220px; margin: 0;" onchange="updateAutoReplySettings()">
+              <option value="first_time">First-time / New Message</option>
+              <option value="always">Every Incoming Message</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. BROADCAST TAB -->
+    <div id="tab-broadcast" class="tab-content">
+      <div class="grid-2">
+        <!-- Personalized Template Broadcast -->
+        <div class="card">
+          <div class="card-title"><span>📑 Personalized / Template Broadcast</span></div>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+            Har user ko unka unique Name, Car number, Order ID replace karke send karein.
+          </p>
+
+          <label>1. Message Template Format:</label>
+          <textarea id="bcTemplateText" rows="4">Hello {name} ji! 🙏
+Aapki car ({car}) ka record confirm ho gaya hai.
+Dhanyawad!</textarea>
+
+          <label>2. Paste Recipient Data (CSV or Pipe format):</label>
+          <textarea id="bcDataText" rows="5" placeholder="phone,name,car
+919876544444,dev,rj02ff54565
+919812345678,rahul,dl01ab1234"></textarea>
+
+          <button class="btn btn-primary" style="width: 100%;" onclick="startTemplateBroadcast()"><i class="fa-solid fa-paper-plane"></i> Start Personalized Broadcast</button>
+          <div id="bcResultBox" style="margin-top: 15px; display: none; padding: 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); border-radius: 8px; font-size: 13px;"></div>
+        </div>
+
+        <!-- Single User Direct Message -->
+        <div class="card">
+          <div class="card-title"><span>🎯 Single User Direct Message</span></div>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+            Kisi ek specific phone number ko message ya media send karein.
+          </p>
+
+          <label>Recipient Phone Number (with Country Code):</label>
+          <input type="text" id="singlePhoneInput" placeholder="e.g. 919876543210">
+
+          <label>Message Text:</label>
+          <textarea id="singleTextInput" rows="4" placeholder="Type your message here..."></textarea>
+
+          <button class="btn btn-secondary" style="width: 100%;" onclick="sendSingleMessage()"><i class="fa-solid fa-paper-plane"></i> Send Direct Message</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CONTACTS TAB -->
+    <div id="tab-contacts" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>👥 My Captured Leads & Contacts</span>
+          <button class="btn btn-primary btn-sm" onclick="exportContactsCSV()"><i class="fa-solid fa-file-excel"></i> Export to Excel (CSV)</button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px;">
+          Aapke WhatsApp account par message karne wale users automatically yahan save hote hain.
+        </p>
+        <div style="overflow-x: auto; margin-top: 15px;">
+          <table id="contactsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Phone Number</th>
+                <th>WhatsApp Name</th>
+                <th>First Seen</th>
+                <th>Messages</th>
+                <th>Last Auto-Reply</th>
+              </tr>
+            </thead>
+            <tbody id="contactsTableBody">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading contacts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ADMINS MANAGEMENT TAB -->
+    <div id="tab-admins" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span>👑 Authorized Admins List</span></div>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
+            Yeh users Telegram Bot aur Web Dashboard use kar sakte hain. Sabka data alag aur private rehta hai.
+          </p>
+          <div id="adminsListTableContainer">Loading admins...</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>➕ Add New Admin</span></div>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
+            Naye admin ka Telegram User ID enter karein:
+          </p>
+          <label>Telegram User ID (Numeric):</label>
+          <input type="text" id="newAdminIdInput" placeholder="e.g. 1234567890">
+          <label>Admin Name / Label (Optional):</label>
+          <input type="text" id="newAdminNameInput" placeholder="e.g. Rahul Sharma">
+          <button class="btn btn-primary" style="width: 100%;" onclick="addNewAdmin()"><i class="fa-solid fa-user-plus"></i> Authorize Admin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD ACCOUNT VIA PAIRING CODE -->
+  <div class="modal-overlay" id="pairModal">
+    <div class="modal">
+      <div class="modal-title">📱 Link WhatsApp via Pairing Code</div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+        Apna WhatsApp phone number country code ke sath dalein (e.g. <code>919876543210</code>).
+      </p>
+      <input type="text" id="pairPhoneInput" placeholder="919876543210">
+      
+      <div id="pairingCodeDisplayArea" style="display: none;">
+        <div class="pairing-box">
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">YOUR 8-DIGIT PAIRING CODE:</div>
+          <div class="pairing-code" id="pairingCodeValue">---- ----</div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          📲 <b>How to link:</b><br>
+          1. Phone me WhatsApp open karein > Settings > <b>Linked Devices</b><br>
+          2. <b>Link a Device</b> tap karein<br>
+          3. Niche <b>"Link with phone number instead"</b> dabakar upar ka code dalein!
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+        <button class="btn btn-secondary" onclick="closePairModal()">Close</button>
+        <button class="btn btn-primary" id="requestPairBtn" onclick="requestPairingCode()">Generate Code</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT AUTO-REPLY SLOT -->
+  <div class="modal-overlay" id="slotModal">
+    <div class="modal">
+      <div class="modal-title" id="slotModalTitle">Set Step Content</div>
+      
+      <label>Option 1: Text Message</label>
+      <textarea id="slotTextContent" rows="3" placeholder="Type text for this step..."></textarea>
+
+      <div style="text-align: center; color: var(--text-muted); margin: 10px 0; font-size: 12px;">— OR —</div>
+
+      <label>Option 2: Upload File (APK, Photo, Video, Document)</label>
+      <input type="file" id="slotMediaFile">
+      <input type="text" id="slotMediaCaption" placeholder="Optional caption for file...">
+
+      <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+        <button class="btn btn-secondary" onclick="closeSlotModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSlotContent()">Save Step</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAdminId = '8903350022';
+    let activeSlotEditing = 1;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+      if (tabId === 'admins') loadAdmins();
+    }
+
+    function onAdminChange(newId) {
+      currentAdminId = newId;
+      loadStatus();
+      loadContacts();
+    }
+
+    async function loadStatus() {
+      try {
+        const res = await fetch('/api/status?adminId=' + currentAdminId);
+        const data = await res.json();
+        if (!data.success) return;
+
+        // Populate admin selector if options mismatch
+        const sel = document.getElementById('adminSelect');
+        if (data.admins && data.admins.length > 0) {
+          sel.innerHTML = '';
+          data.admins.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id;
+            opt.innerText = `${a.name || 'Admin'} (${a.id}) ${a.role === 'superadmin' ? '⭐' : ''}`;
+            if (a.id === currentAdminId) opt.selected = true;
+            sel.appendChild(opt);
+          });
+        }
+
+        document.getElementById('connectedCountSpan').innerText = data.connectedCount;
+        renderAccounts(data.accounts);
+        renderSlots(data.autoreply);
+        document.getElementById('autoReplyDelaySelect').value = data.autoreply.delayBetweenMessagesMs || 1500;
+        document.getElementById('autoReplyModeSelect').value = data.autoreply.triggerMode || 'first_time';
+      } catch (e) {
+        console.error('Error loading status:', e);
+      }
+    }
+
+    function renderAccounts(accounts) {
+      const container = document.getElementById('accountsListContainer');
+      if (!accounts || accounts.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 25px; color: var(--text-muted);">No WhatsApp accounts added yet for this admin. Click "+ Link Account" above!</div>';
+        return;
+      }
+      let html = '<table><thead><tr><th>Phone</th><th>Name</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+      accounts.forEach(a => {
+        const isOnline = a.isOnline;
+        html += `<tr>
+          <td><b>+${a.phone}</b></td>
+          <td>${a.name || 'WhatsApp'}</td>
+          <td><span class="badge ${isOnline ? 'badge-success' : 'badge-danger'}">${isOnline ? '🟢 Connected' : '🔴 Offline'}</span></td>
+          <td><button class="btn btn-danger btn-sm" onclick="deleteAccount('${a.phone}')"><i class="fa-solid fa-trash"></i> Remove</button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function renderSlots(ar) {
+      const slots = ar.slots || {};
+      for (let i = 1; i <= 4; i++) {
+        const s = slots['step' + i];
+        const card = document.getElementById('slotCard-' + i);
+        const badge = document.getElementById('slotBadge-' + i);
+        const preview = document.getElementById('slotPreview-' + i);
+
+        if (s && (s.content || s.filePath)) {
+          card.classList.add('active');
+          badge.className = 'step-status status-set';
+          badge.innerText = 'Active';
+          if (s.type === 'text') {
+            preview.innerText = s.content;
+          } else {
+            preview.innerHTML = `<b>[${s.type.toUpperCase()}]</b> ${s.fileName || ''}<br><span style="color:var(--text-muted)">${s.caption || ''}</span>`;
+          }
+        } else {
+          card.classList.remove('active');
+          badge.className = 'step-status status-unset';
+          badge.innerText = 'Not Set (Skipped)';
+          preview.innerHTML = '<i>Empty (Will be skipped in sequence)</i>';
+        }
+      }
+    }
+
+    async function loadContacts() {
+      try {
+        const res = await fetch('/api/contacts?adminId=' + currentAdminId);
+        const data = await res.json();
+        const tbody = document.getElementById('contactsTableBody');
+        if (!data.contacts || data.contacts.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No contacts captured yet for this admin.</td></tr>';
+          return;
+        }
+        let html = '';
+        data.contacts.forEach((c, idx) => {
+          html += `<tr>
+            <td>${idx + 1}</td>
+            <td><b>+${c.phone}</b></td>
+            <td>${c.name || 'Unknown'}</td>
+            <td>${new Date(c.firstSeen).toLocaleDateString()}</td>
+            <td>${c.messageCount || 1}</td>
+            <td>${c.lastAutoReplyAt ? new Date(c.lastAutoReplyAt).toLocaleTimeString() : 'None'}</td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadAdmins() {
+      const res = await fetch('/api/admins');
+      const data = await res.json();
+      const container = document.getElementById('adminsListTableContainer');
+      if (!data.admins || data.admins.length === 0) {
+        container.innerHTML = 'No admins found.';
+        return;
+      }
+      let html = '<table><thead><tr><th>Name</th><th>Telegram ID</th><th>Role</th><th>Action</th></tr></thead><tbody>';
+      data.admins.forEach(a => {
+        const isSuper = a.role === 'superadmin';
+        html += `<tr>
+          <td><b>${a.name || 'Admin'}</b></td>
+          <td><code>${a.id}</code></td>
+          <td><span class="badge ${isSuper ? 'badge-gold' : 'badge-info'}">${isSuper ? '⭐ Super Admin' : '👤 Admin'}</span></td>
+          <td>${isSuper ? '<span style="color:var(--text-muted);font-size:12px">Protected</span>' : `<button class="btn btn-danger btn-sm" onclick="removeAdmin('${a.id}')"><i class="fa-solid fa-trash"></i> Remove</button>`}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    async function addNewAdmin() {
+      const id = document.getElementById('newAdminIdInput').value.trim();
+      const name = document.getElementById('newAdminNameInput').value.trim();
+      if (!id) return alert('Enter numeric Telegram ID');
+
+      const res = await fetch('/api/admins', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Admin added successfully!');
+        document.getElementById('newAdminIdInput').value = '';
+        document.getElementById('newAdminNameInput').value = '';
+        loadAdmins();
+        loadStatus();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }
+
+    async function removeAdmin(id) {
+      if (!confirm(`Remove Admin ${id}?`)) return;
+      const res = await fetch('/api/admins/' + id, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        loadAdmins();
+        loadStatus();
+      } else {
+        alert(data.error);
+      }
+    }
+
+    function exportContactsCSV() {
+      window.location.href = `/api/contacts/export?adminId=${currentAdminId}`;
+    }
+
+    // Modal Actions
+    function openPairModal() {
+      document.getElementById('pairingCodeDisplayArea').style.display = 'none';
+      document.getElementById('requestPairBtn').disabled = false;
+      document.getElementById('requestPairBtn').innerText = 'Generate Code';
+      document.getElementById('pairModal').classList.add('active');
+    }
+    function closePairModal() {
+      document.getElementById('pairModal').classList.remove('active');
+      loadStatus();
+    }
+
+    async function requestPairingCode() {
+      const phone = document.getElementById('pairPhoneInput').value.trim();
+      if (!phone) return alert('Please enter phone number with country code');
+
+      const btn = document.getElementById('requestPairBtn');
+      btn.disabled = true;
+      btn.innerText = 'Connecting...';
+
+      try {
+        const res = await fetch('/api/accounts/pair', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, adminId: currentAdminId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('pairingCodeValue').innerText = data.code;
+          document.getElementById('pairingCodeDisplayArea').style.display = 'block';
+          btn.innerText = 'Code Ready';
+        } else {
+          alert('Error: ' + data.error);
+          btn.disabled = false;
+          btn.innerText = 'Try Again';
+        }
+      } catch (e) {
+        alert('Failed: ' + e.message);
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteAccount(phone) {
+      if (!confirm(`Are you sure you want to remove account +${phone}?`)) return;
+      await fetch('/api/accounts/' + phone + '?adminId=' + currentAdminId, { method: 'DELETE' });
+      loadStatus();
+    }
+
+    // Auto-Reply Slot Modal
+    function openEditSlotModal(num) {
+      activeSlotEditing = num;
+      document.getElementById('slotModalTitle').innerText = 'Set Content for Step ' + num;
+      document.getElementById('slotTextContent').value = '';
+      document.getElementById('slotMediaFile').value = '';
+      document.getElementById('slotMediaCaption').value = '';
+      document.getElementById('slotModal').classList.add('active');
+    }
+    function closeSlotModal() {
+      document.getElementById('slotModal').classList.remove('active');
+    }
+
+    async function saveSlotContent() {
+      const text = document.getElementById('slotTextContent').value.trim();
+      const file = document.getElementById('slotMediaFile').files[0];
+      const caption = document.getElementById('slotMediaCaption').value.trim();
+
+      const formData = new FormData();
+      formData.append('adminId', currentAdminId);
+      if (file) {
+        formData.append('mediaFile', file);
+        if (caption) formData.append('caption', caption);
+      } else if (text) {
+        formData.append('content', text);
+      } else {
+        return alert('Please enter text or select a file.');
+      }
+
+      await fetch('/api/autoreply/slot/' + activeSlotEditing, {
+        method: 'POST',
+        body: formData
+      });
+      closeSlotModal();
+      loadStatus();
+    }
+
+    async function clearSlot(num) {
+      if (!confirm(`Clear Step ${num}? It will be skipped in auto-reply.`)) return;
+      await fetch('/api/autoreply/slot/' + num + '?adminId=' + currentAdminId, { method: 'DELETE' });
+      loadStatus();
+    }
+
+    async function toggleAutoReply() {
+      await fetch('/api/autoreply/toggle?adminId=' + currentAdminId, { method: 'POST' });
+      loadStatus();
+    }
+
+    async function updateAutoReplySettings() {
+      const delay = document.getElementById('autoReplyDelaySelect').value;
+      const mode = document.getElementById('autoReplyModeSelect').value;
+      await fetch('/api/autoreply/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ delay, mode, adminId: currentAdminId })
+      });
+    }
+
+    // Broadcast
+    async function startTemplateBroadcast() {
+      const template = document.getElementById('bcTemplateText').value.trim();
+      const dataText = document.getElementById('bcDataText').value.trim();
+      if (!template || !dataText) return alert('Please enter template and recipient data');
+
+      const resBox = document.getElementById('bcResultBox');
+      resBox.style.display = 'block';
+      resBox.innerText = 'Starting broadcast...';
+
+      try {
+        const res = await fetch('/api/broadcast/template', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ template, dataText, adminId: currentAdminId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          resBox.innerHTML = `✅ <b>${data.message}</b><br><br><b>Sample Row #1 Preview:</b><br><pre style="background:#0f172a; padding:8px; border-radius:6px; margin-top:6px;">${data.samplePreview}</pre>`;
+        } else {
+          resBox.innerHTML = `❌ Error: ${data.error}`;
+        }
+      } catch (e) {
+        resBox.innerHTML = `❌ Failed: ${e.message}`;
+      }
+    }
+
+    async function sendSingleMessage() {
+      const phone = document.getElementById('singlePhoneInput').value.trim();
+      const text = document.getElementById('singleTextInput').value.trim();
+      if (!phone || !text) return alert('Enter phone number and message text.');
+
+      const res = await fetch('/api/broadcast/single', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, text, adminId: currentAdminId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Message delivered to +' + phone + ' successfully!');
+        document.getElementById('singleTextInput').value = '';
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }
+
+    // Init
+    loadStatus();
+    loadContacts();
+    setInterval(loadStatus, 5000);
+  </script>
+</body>
+</html>
