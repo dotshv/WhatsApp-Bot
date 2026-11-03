@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "triggerMode": "first_time",
+  "delayBetweenMessagesMs": 1500,
+  "replyWindowHours": 24,
+  "slots": {
+    "step1": null,
+    "step2": null,
+    "step3": null,
+    "step4": null
+  }
+}

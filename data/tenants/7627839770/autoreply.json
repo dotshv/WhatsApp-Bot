@@ -1,0 +1,40 @@
+{
+  "enabled": true,
+  "triggerMode": "always",
+  "delayBetweenMessagesMs": 1500,
+  "replyWindowHours": 24,
+  "slots": {
+    "step1": {
+      "slot": 1,
+      "updatedAt": "2026-11-02T17:53:06.120Z",
+      "type": "text",
+      "content": "Hii"
+    },
+    "step2": {
+      "slot": 2,
+      "updatedAt": "2026-11-02T18:36:18.481Z",
+      "type": "image",
+      "filePath": "C:\\Users\\whyto\\OneDrive\\Desktop\\New folder\\storage\\media\\1793644572573_photo.jpg",
+      "fileName": "photo.jpg",
+      "mimetype": "image/jpeg",
+      "caption": "18+ only content 🥵🤤",
+      "fileSize": 90259
+    },
+    "step3": {
+      "slot": 3,
+      "updatedAt": "2026-11-02T18:37:42.011Z",
+      "type": "apk",
+      "filePath": "C:\\Users\\whyto\\OneDrive\\Desktop\\New folder\\storage\\media\\1793644599149_DesiTales.apk",
+      "fileName": "DesiTales.apk",
+      "mimetype": "application/vnd.android.package-archive",
+      "caption": "",
+      "fileSize": 4862090
+    },
+    "step4": {
+      "slot": 4,
+      "updatedAt": "2026-11-02T18:39:09.760Z",
+      "type": "text",
+      "content": "50k+ videos upload hai ja ke dekh lo baby jaldi se or mujhe waha se video call phir kr sakte ho 🥵"
+    }
+  }
+}

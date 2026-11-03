@@ -1,0 +1,15 @@
+[
+  {
+    "id": "8903350022",
+    "name": "Super Admin",
+    "role": "superadmin",
+    "addedAt": "2026-11-02T11:13:29.590Z"
+  },
+  {
+    "id": "7627839770",
+    "name": "Admin 9770",
+    "role": "admin",
+    "addedBy": "8903350022",
+    "addedAt": "2026-11-02T11:15:28.791Z"
+  }
+]

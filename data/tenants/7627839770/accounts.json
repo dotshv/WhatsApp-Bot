@@ -1,0 +1,22 @@
+[
+  {
+    "phone": "918292124224",
+    "status": "logged_out",
+    "isDefault": false,
+    "adminId": "7627839770",
+    "addedAt": "2026-11-02T17:51:26.873Z",
+    "updatedAt": "2026-11-03T09:24:22.347Z",
+    "name": "Disha",
+    "jid": "918292124224:1@s.whatsapp.net"
+  },
+  {
+    "phone": "919342040021",
+    "status": "connected",
+    "adminId": "7627839770",
+    "addedAt": "2026-11-02T18:33:58.664Z",
+    "updatedAt": "2026-11-03T11:35:06.671Z",
+    "name": "Disha",
+    "jid": "919342040021:1@s.whatsapp.net",
+    "isDefault": true
+  }
+]
