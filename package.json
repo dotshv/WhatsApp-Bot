@@ -1,0 +1,30 @@
+{
+  "name": "whatsapp-telegram-bot-suite",
+  "version": "1.0.0",
+  "description": "WhatsApp Multi-Account Manager, Auto-Reply (All Formats & APK) & Broadcast System via Telegram Bot",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "telegram-bot",
+    "baileys",
+    "auto-reply",
+    "broadcast",
+    "pairing-code"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "axios": "^1.21.0",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "mime-types": "^3.0.2",
+    "multer": "^2.5.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "pino": "^10.4.0"
+  }
+}

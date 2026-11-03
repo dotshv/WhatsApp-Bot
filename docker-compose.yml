@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  whatsapp-bot:
+    build: .
+    container_name: whatsapp-bot-suite
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TELEGRAM_BOT_TOKEN=9020271433:AAEdhV-SWJHK80koVpw0XUgzUnyBNWTosAk
+      - ADMIN_IDS=8903350022,7627839770
+    volumes:
+      - ./data:/app/data
+      - ./storage:/app/storage
+
